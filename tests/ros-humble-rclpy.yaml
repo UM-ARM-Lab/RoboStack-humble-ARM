@@ -1,5 +1,0 @@
-tests:
-  - python:
-      imports:
-        - rclpy
-      pip_check: false

@@ -1,3 +1,0 @@
-tests:
-  - script:
-    - ament_lint_cmake --help

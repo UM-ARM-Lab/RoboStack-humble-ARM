@@ -9,3 +9,5 @@ recipes/
 .pixi
 *.egg-info
 output/
+
+custom_packages/

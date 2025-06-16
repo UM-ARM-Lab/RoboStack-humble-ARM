@@ -16,14 +16,9 @@ cdt_name:  # [linux]
   - conda  # [linux]
 
 python:
-  - 3.11.* *_cpython
+  - 3.10.* *_cpython
 python_impl:
   - cpython
-
-emscripten_emscripten-wasm32:
-  - 3.1.45  
-cross-python_emscripten-wasm32:
-  - 3.11.* *_12
 
 c_compiler:
   - gcc                        # [linux]
