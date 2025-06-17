@@ -34,8 +34,18 @@ If you use RoboStack in your academic work, please refer to the following paper:
 }
 ```
 
-## Installation, FAQ, and Contributing Instructions
-Please see our instructions [here](https://robostack.github.io/GettingStarted.html).
+## Building for Robostack
+
+Documentation for this procedure is very lacky, so the following is the best efforts I tried to pull together:
+
+Generally, to convert a ROS package to Conda package, you need to 1. compile all necessary code to correct binaries for specific platforms, 2. link aginst correct libraries or package libraries together into the conda package, and 3. setup conda required metadata or structures. To do this process, instead of using `colcon build` like ROS2, the procedure works around `rattler-build`, which is a tool that compiles source code in many languages to conda packages. 
+
+- **Metadata resolution**: building package like this requires knowing the dependencies of this package in both compile time and runtime. It also requires metadata such as maintainer, package name, etc. Additionally, the builder needs to know any specifics of how this package should be compiled. This is known as a **conda recipe**. This procedure is more or less the same for ROS packages, which is why the RoboStack team wrote [vinca](https://github.com/RoboStack/vinca.git) tool for converting the `package.xml` file of a ROS package into a 
+
+**NOTE**: `vinca` is buggy and changes frequently, according to the RoboStack team, so developements of this repo should strictly follow official documentation. It is recommended to iteratively run the building procedure and debug any issues.
+
+- **Package compilation**: `rattler-build` handles building conda packages from recipes, which is pretty stable during testing. 
+- **Installing/Distributing**: Built packages are stored in output/{platform}/{package}.conda. Now you may install this `.conda` file in your conda environment or distribute to your team. 
 
 ## Docker-based Building (Interactive Development)
 
@@ -62,6 +72,8 @@ This repository includes Docker Compose configuration for interactive developmen
 3. **Enter the container:**
    ```bash
    docker compose exec robostack-dev bash
+   # or
+   docker exec -it robostack-dev bash
    ```
 
 4. **Inside the container, you can now run pixi commands:**
@@ -76,17 +88,13 @@ This repository includes Docker Compose configuration for interactive developmen
 
    - **Generate a recipe for a single custom package:**
      ```bash
-     PACKAGE_XML_PATH=custom_packages/your_package/package.xml pixi run -e beta generate-custom-recipe
+     PACKAGE_XML_PATH=custom_packages/your_package/package.xml 
+     pixi run -e beta generate-custom-recipe
      ```
 
-   - **Build additional recipes:**
+   - **Build all additional recipes:**
      ```bash
      pixi run build_additional_recipes
-     ```
-
-   - **Build all packages:**
-     ```bash
-     pixi run -e beta build
      ```
 
 ### Container Management
@@ -123,20 +131,79 @@ Built packages will be available in the `output/linux-64/` directory on your hos
    pixi run -e beta generate-recipes
    
    # For a single package
-   PACKAGE_XML_PATH=custom_packages/your_package/package.xml pixi run -e beta generate-custom-recipe
+   PACKAGE_XML_PATH=custom_packages/your_package/package.xml
+   pixi run -e beta generate-custom-recipe
    ```
 
-4. **Build packages:**
+4. **Move files**
+    
+    All custom packages should have a dedicated folder in additional_recipes like the example. The previous command should have generated a set of `.sh, .bat, .pz1` files. For linux-64, you only need the `.sh` files. Copy those files to the folder, and copy over the generated recipe.yaml as well. 
+    ```bash
+    cp *.sh additional_recipes/<package_name>/
+    cp recipe.yaml additional_recipes/<package_name>/
+    ```
+
+4. **Iteratively Build Packages:**
    ```bash
    pixi run build_additional_recipes
    # or for full build
    pixi run -e beta build
    ```
+   Debug any issues from the output, and adjust your recipe accordingly. 
 
 5. **Find built packages in `output/linux-64/`** (on the host machine)
 
-### Troubleshooting
+## Configure Your Build
 
+**Project Structure**
+- `conda_build_config.yaml` hosts conda environment config that packages will be built in, such as numpy version, python version, etc. 
+- `rosdistro_snapshot.yaml` hosts metadata of packages in the ROS release channel. This is used for 
+- `packages-ignore.yaml`, `pkg_additional_info.yaml`: unknown, not really configurable.
+- `robostack.yaml` maps ROS dependencies to system dependency names. If your package uses a system dependency, you should configure it here.
+- `vinca_linux_64.yml` specifies the vinca information for linux_64 platform. We don't need to support platforms other than linux x64, so that is the only one. The official repository contains multiple versions for different OS platforms. Usually this is where which packages gets built are specified, but since we are not building robostack from scratch, we don't need to configure this. 
+
+
+**Configurable Fields**
+1. **Python vesrion** is specified in `conda_build_config.yaml`
+2. **numpy version** is specified in `conda_build_config.yaml`
+3. 
+
+## Troubleshooting
+
+**General Tips**
 - **Container logs**: View logs with `docker compose logs robostack-dev`
 - **Restart container**: `docker compose restart robostack-dev`
 - **Clean restart**: `docker compose down && docker compose up -d robostack-dev`
+
+
+### Known Issues
+
+1. Vinca is not very good at detecting if pacakge version is for ROS1 or ROS2, this decides whether `build_catkin` or `build_ament*` is used. If the generated `recipe.yaml` says using `build_catkin.sh`, replace those with `build_ament_cmake.sh` (for cpp packages) or `build_ament_python.sh` (for python-only pakcages) if your package is ROS2. To be 100% sure, delete the scripts that use catkin. 
+
+2. The source path in a `vinca` generated recipe is relative to the generated `recipe.yaml` file. Since we move that file to a dedicated folder, this relative path changes. Therefore, for this data structure, you should change the path to include `../../`
+
+   **Example folder structure:**
+   ```
+   RoboStack-humble-ARM/
+   ├── custom_packages/
+   │   └── your_package/
+   │       └── package.xml
+   ├── additional_recipes/
+   │   └── your_package/
+   │       ├── recipe.yaml (moved here)
+   │       └── build_ament_cmake.sh
+   └── recipe.yaml (generated here by vinca)
+   ```
+   
+   **Path correction needed:**
+   ```yaml
+   # Generated by vinca (incorrect after moving):
+   source:
+     - path: custom_packages/your_package
+   
+   # Corrected path in additional_recipes/your_package/recipe.yaml:
+   source:
+     - path: ../../custom_packages/your_package
+   ```
+
+3. It is unknown how rattler-build handles dependencies in the same directory. Building is generally okay, but you may want to build things in a particular order manually.
