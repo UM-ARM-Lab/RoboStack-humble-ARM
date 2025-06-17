@@ -36,3 +36,107 @@ If you use RoboStack in your academic work, please refer to the following paper:
 
 ## Installation, FAQ, and Contributing Instructions
 Please see our instructions [here](https://robostack.github.io/GettingStarted.html).
+
+## Docker-based Building (Interactive Development)
+
+This repository includes Docker Compose configuration for interactive development of RoboStack packages using the prebuilt pixi container. This approach provides a persistent development environment where you can run commands manually.
+
+### Prerequisites
+
+- Docker and Docker Compose installed on your system
+- Git (to clone this repository)
+
+### Quick Start
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd RoboStack-humble-ARM
+   ```
+
+2. **Start the development container:**
+   ```bash
+   docker compose up -d robostack-dev
+   ```
+
+3. **Enter the container:**
+   ```bash
+   docker compose exec robostack-dev bash
+   ```
+
+4. **Inside the container, you can now run pixi commands:**
+
+   - **Set up custom packages (if needed):**
+     Place your custom ROS packages in the `custom_packages/` directory on the host. They will be automatically available in the container.
+
+   - **Generate recipes for all custom packages:**
+     ```bash
+     pixi run -e beta generate-recipes
+     ```
+
+   - **Generate a recipe for a single custom package:**
+     ```bash
+     PACKAGE_XML_PATH=custom_packages/your_package/package.xml pixi run -e beta generate-custom-recipe
+     ```
+
+   - **Build additional recipes:**
+     ```bash
+     pixi run build_additional_recipes
+     ```
+
+   - **Build all packages:**
+     ```bash
+     pixi run -e beta build
+     ```
+
+### Container Management
+
+- **Start the container:** `docker compose up -d robostack-dev`
+- **Enter the container:** `docker compose exec robostack-dev bash`
+- **Stop the container:** `docker compose down`
+- **View logs:** `docker compose logs robostack-dev`
+
+### Output
+
+Built packages will be available in the `output/linux-64/` directory on your host machine.
+
+### Available Commands (inside the container)
+
+- **`pixi run build_additional_recipes`**: Build only additional recipes
+- **`pixi run -e beta generate-recipes`**: Generate recipes from all custom packages  
+- **`pixi run -e beta generate-custom-recipe`**: Generate a recipe for a single custom package (set `PACKAGE_XML_PATH`)
+- **`pixi run -e beta build`**: Build all packages including generated recipes
+
+### Development Workflow
+
+1. **Start the development environment:**
+   ```bash
+   docker compose up -d robostack-dev
+   docker compose exec robostack-dev bash
+   ```
+
+2. **Add your custom ROS packages to `custom_packages/`** (on the host machine)
+
+3. **Inside the container, generate recipes:**
+   ```bash
+   # For all packages
+   pixi run -e beta generate-recipes
+   
+   # For a single package
+   PACKAGE_XML_PATH=custom_packages/your_package/package.xml pixi run -e beta generate-custom-recipe
+   ```
+
+4. **Build packages:**
+   ```bash
+   pixi run build_additional_recipes
+   # or for full build
+   pixi run -e beta build
+   ```
+
+5. **Find built packages in `output/linux-64/`** (on the host machine)
+
+### Troubleshooting
+
+- **Container logs**: View logs with `docker compose logs robostack-dev`
+- **Restart container**: `docker compose restart robostack-dev`
+- **Clean restart**: `docker compose down && docker compose up -d robostack-dev`

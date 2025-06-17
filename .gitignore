@@ -1,9 +1,9 @@
 vinca.yaml
 recipes/
-*.bat
-*.sh
-*.ps1
-*.json
+/*.bat
+/*.sh
+/*.ps1
+/*.json
 .DS_Store
 # pixi environments
 .pixi
@@ -11,3 +11,4 @@ recipes/
 output/
 
 custom_packages/
+/recipe.yaml

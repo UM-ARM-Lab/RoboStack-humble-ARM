@@ -3,9 +3,9 @@ name = "ros-humble"
 # Just a convention, this is the same as the mutex package
 version = "0.6.0"
 description = "RoboStack repo to package ros-humble packages as conda packages"
-authors = ["Tobias Fischer <tobias.fischer@qut.edu.au>", "Wolf Vollprecht <w.vollprecht@gmail.com>", "Silvio Traversaro <silvio@traversaro.it>"]
+authors = ["Tobias Fischer <tobias.fischer@qut.edu.au>", "Wolf Vollprecht <w.vollprecht@gmail.com>", "Silvio Traversaro <silvio@traversaro.it>", "Daniel Hou <houhd@umich.edu>"]
 channels = ["https://repo.prefix.dev/conda-forge"]
-platforms = ["osx-arm64", "linux-64", "osx-64", "linux-aarch64", "win-64"]
+platforms = ["linux-64"]
 
 [system-requirements]
 # 2.17 is the glibc version used in centos 7
@@ -15,15 +15,15 @@ libc = { family="glibc", version="2.17" }
 upload = "anaconda -t $ANACONDA_API_TOKEN upload"
 
 [dependencies]
-python = ">=3.11.0,<3.12"
+python = ">=3.10.0,<=3.12"
 rattler-build = ">=0.35.5"
 anaconda-client = ">=1.12"
 
-[target.win-64.dependencies]
-# patch is required by rattler-build
-m2-patch = "*"
-# git is required by rattler-build
-git = "*"
+# [target.win-64.dependencies]
+# # patch is required by rattler-build
+# m2-patch = "*"
+# # git is required by rattler-build
+# git = "*"
 
 [feature.beta.pypi-dependencies]
 # This is tipically the latest commit on main branch
@@ -34,6 +34,7 @@ vinca = { git = "https://github.com/RoboStack/vinca.git", rev = "9d6af673f3957c0
 
 [feature.beta.tasks]
 generate-recipes = { cmd = "vinca -m", depends-on = ["rename-file"] }
+generate-custom-recipe = { cmd = "vinca -p $PACKAGE_XML_PATH" }
 remove-file = { cmd = "rm vinca.yaml; rm -rf recipes; mkdir recipes" }
 build_additional_recipes = { cmd = "rattler-build build --recipe-dir ./additional_recipes -m ./conda_build_config.yaml -c robostack-staging -c https://repo.prefix.dev/conda-forge --skip-existing" }
 copy_additional_recipes = { cmd = "sh -c 'find additional_recipes/* -maxdepth 0 -type d -exec ln -s ../{} recipes/ \\;'" }
@@ -62,14 +63,14 @@ beta = ["beta"]
 [target.linux-64.tasks]
 rename-file = { cmd = "ln -s vinca_linux_64.yaml vinca.yaml", depends-on = ["remove-file"] }
 
-[target.osx-64.tasks]
-rename-file = { cmd = "ln -s vinca_osx.yaml vinca.yaml", depends-on = ["remove-file"] }
+# [target.osx-64.tasks]
+# rename-file = { cmd = "ln -s vinca_osx.yaml vinca.yaml", depends-on = ["remove-file"] }
 
-[target.osx-arm64.tasks]
-rename-file = { cmd = "ln -s vinca_osx_arm64.yaml vinca.yaml", depends-on = ["remove-file"] }
+# [target.osx-arm64.tasks]
+# rename-file = { cmd = "ln -s vinca_osx_arm64.yaml vinca.yaml", depends-on = ["remove-file"] }
 
-[target.linux-aarch64.tasks]
-rename-file = { cmd = "ln -s vinca_linux_aarch64.yaml vinca.yaml", depends-on = ["remove-file"] }
+# [target.linux-aarch64.tasks]
+# rename-file = { cmd = "ln -s vinca_linux_aarch64.yaml vinca.yaml", depends-on = ["remove-file"] }
 
-[target.win-64.tasks]
-rename-file = { cmd = "cp vinca_win.yaml vinca.yaml", depends-on = ["remove-file"] }
+# [target.win-64.tasks]
+# rename-file = { cmd = "cp vinca_win.yaml vinca.yaml", depends-on = ["remove-file"] }
