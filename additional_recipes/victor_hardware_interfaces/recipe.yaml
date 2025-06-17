@@ -79,6 +79,10 @@ outputs:
         - if: build_platform != target_platform
           then:
             - pybind11
+        - ros-humble-rosidl-default-generators
+        - ros-humble-rosidl-typesupport-c
+        - ros-humble-rosidl-typesupport-cpp
+        - ros-humble-rosidl-generator-py
       host:
         - ros-humble-ament-cmake
         - ros-humble-rosidl-default-generators
@@ -86,10 +90,17 @@ outputs:
         - ros-humble-std-msgs
         - ros-humble-geometry-msgs
         - ros-humble-std-msgs
+        - ros-humble-rosidl-default-generators
+        - ros-humble-rosidl-typesupport-c
+        - ros-humble-rosidl-typesupport-cpp
+        - ros-humble-rosidl-generator-py
       run:
         - ros-humble-geometry-msgs
         - ros-humble-std-msgs
         - ros-humble-rosidl-default-runtime
         - ros-humble-geometry-msgs
         - ros-humble-std-msgs
-
+        - ros-humble-rosidl-default-generators
+        - ros-humble-rosidl-typesupport-c
+        - ros-humble-rosidl-typesupport-cpp
+        - ros-humble-rosidl-generator-py
