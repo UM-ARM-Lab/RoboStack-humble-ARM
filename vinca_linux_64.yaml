@@ -39,6 +39,7 @@ packages_remove_from_deps:
 
 skip_existing:
   - https://conda.anaconda.org/robostack-staging/
+  - https://conda.anaconda.org/conda-forge/
 
 packages_select_by_deps:
   

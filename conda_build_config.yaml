@@ -16,7 +16,7 @@ cdt_name:  # [linux]
   - conda  # [linux]
 
 python:
-  - 3.10.* *_cpython
+  - 3.10.*
 python_impl:
   - cpython
 

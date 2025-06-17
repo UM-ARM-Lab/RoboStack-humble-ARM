@@ -59,6 +59,7 @@ outputs:
         - ninja
         - python
         - patch
+        - libxcrypt
         - if: unix
           then:
             - make
@@ -79,11 +80,14 @@ outputs:
         - if: build_platform != target_platform
           then:
             - pybind11
+        - python==3.10
         - ros-humble-rosidl-default-generators
         - ros-humble-rosidl-typesupport-c
         - ros-humble-rosidl-typesupport-cpp
         - ros-humble-rosidl-generator-py
       host:
+        - python==3.10
+        - libxcrypt
         - ros-humble-ament-cmake
         - ros-humble-rosidl-default-generators
         - ros-humble-geometry-msgs
@@ -95,6 +99,7 @@ outputs:
         - ros-humble-rosidl-typesupport-cpp
         - ros-humble-rosidl-generator-py
       run:
+        - python==3.10
         - ros-humble-geometry-msgs
         - ros-humble-std-msgs
         - ros-humble-rosidl-default-runtime
