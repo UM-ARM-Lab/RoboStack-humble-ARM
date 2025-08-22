@@ -1,0 +1,112 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/prefix-dev/recipe-format/main/schema.json
+
+source:
+  - path: ../../custom_packages/ros2_numpy
+    target_directory: ros-humble-ros2-numpy/src/work
+
+build:
+  number: 10
+
+  post_process:
+    - files:
+        - '*.pc'
+      regex: (?:-L|-I)?"?([^;\s]+/sysroot/)
+      replacement: $$(CONDA_BUILD_SYSROOT_S)
+    - files:
+        - '*.cmake'
+      regex: ([^;\s"]+/sysroot)
+      replacement: $$ENV{CONDA_BUILD_SYSROOT}
+    - files:
+        - '*.cmake'
+      regex: ([^;\s"]+/MacOSX\d*\.?\d*\.sdk)
+      replacement: $$ENV{CONDA_BUILD_SYSROOT}
+about:
+  homepage: https://www.ros.org/
+  license: BSD-3-Clause
+  summary: |
+    Robot Operating System
+
+extra:
+  recipe-maintainers:
+    - ros-forge
+
+outputs:
+  - package:
+      name: ros-humble-ros2-numpy
+      version: 2.0.12
+    about:
+      homepage: https://www.ros.org/
+      license: MIT
+      summary: A collection of conversion functions for extracting numpy arrays from messages
+      # maintainers:
+      #   - Eric Wieser (wieser@mit.edu)
+    extra:
+      recipe-maintainers:
+        - robostack
+    build:
+      number: 0
+      script: ${{ '$RECIPE_DIR/build_ament_cmake.sh' }}
+    requirements:
+      build:
+        - ${{ compiler('cxx') }}
+        - ${{ compiler('c') }}
+        - if: target_platform!='emscripten-wasm32'
+          then:
+            - ${{ stdlib('c') }}
+        - ninja
+        - python
+        - ros2-distro-mutex==0.5.0
+        - patch
+        - if: unix
+          then:
+            - make
+            - coreutils
+        - cmake
+        - python==3.10
+        - if: build_platform != target_platform
+          then:
+            - python
+        - if: build_platform != target_platform
+          then:
+            - cross-python_${{ target_platform }}
+        - if: build_platform != target_platform
+          then:
+            - cython
+        - if: build_platform != target_platform
+          then:
+            - numpy
+        - if: build_platform != target_platform
+          then:
+            - pybind11
+      host:
+        - python==3.10
+        - ros-humble-ament-cmake-python
+        - ros-humble-geometry-msgs
+        - ros-humble-nav-msgs
+        - numpy
+        - ros-humble-sensor-msgs
+        - ros-humble-tf-transformations
+        - ros-humble-geometry-msgs
+        - ros-humble-nav-msgs
+        - numpy
+        - ros-humble-sensor-msgs
+        - ros-humble-tf-transformations
+        - ros-humble-ament-cmake-pytest
+        - pytest
+        - ros-humble-rclpy
+      run:
+        - python==3.10
+        - ros-humble-geometry-msgs
+        - ros-humble-nav-msgs
+        - numpy
+        - ros-humble-sensor-msgs
+        - ros-humble-tf-transformations
+        - ros-humble-geometry-msgs
+        - ros-humble-nav-msgs
+        - numpy
+        - ros-humble-sensor-msgs
+        - ros-humble-tf-transformations
+recipe:
+  name: ros
+  version: 2025.06.25
+
