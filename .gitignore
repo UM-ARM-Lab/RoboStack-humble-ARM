@@ -1,4 +1,3 @@
-recipes/
 /*.bat
 /*.sh
 /*.ps1
@@ -11,5 +10,6 @@ recipes_only_patch/
 *.egg-info
 output/
 
+pixi.lock
+
 custom_packages/
-/recipe.yaml
